@@ -47,21 +47,7 @@ const config: Config = {
           editUrl:
             'https://github.com/sonova/sonova-docs/tree/main/',
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/sonova/sonova-docs/tree/main/',
-          // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        blog: false, // Disable blog feature
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -81,11 +67,10 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          sidebarId: 'docsSidebar',
           position: 'left',
           label: 'Documentation',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://sonova.io',
           label: 'Marketplace',
@@ -149,10 +134,6 @@ const config: Config = {
             {
               label: 'GitHub',
               href: 'https://github.com/sonova',
-            },
-            {
-              label: 'Blog',
-              to: '/blog',
             },
           ],
         },
