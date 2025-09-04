@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Sonova Documentation',
   tagline: 'The premier NFT marketplace built on Soneium blockchain',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -62,7 +62,7 @@ const config: Config = {
       title: 'Sonova',
       logo: {
         alt: 'Sonova Logo',
-        src: 'img/logo.svg',
+        src: 'img/sonova-logo.svg',
       },
       items: [
         {
