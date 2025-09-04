@@ -71,16 +71,6 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
-        {
-          href: 'https://sonova.io',
-          label: 'Marketplace',
-          position: 'right',
-        },
-        {
-          href: 'https://github.com/sonova',
-          label: 'GitHub',
-          position: 'right',
-        },
       ],
     },
     footer: {
