@@ -2,46 +2,57 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Welcome to Sonova
 
-Let's discover **Docusaurus in less than 5 minutes**.
+**Sonova** is the premier NFT marketplace built on Soneium blockchain, designed to revolutionize how creators and collectors interact with digital assets. As the native marketplace for Sony's blockchain ecosystem, Sonova combines cutting-edge technology with user-friendly design.
 
-## Getting Started
+## 🚀 Quick Start
 
-Get started by **creating a new site**.
+Get started with Sonova in just a few steps:
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+1. **Connect Your Wallet** - Use MetaMask, Coinbase Wallet, or other supported wallets
+2. **Browse Collections** - Explore trending NFTs and collections
+3. **Start Trading** - Buy, sell, or bid on your favorite digital assets
 
-### What you'll need
+## 🎯 What You Can Do
 
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+### For Traders
+- **Buy NFTs** instantly with competitive fees
+- **Place bids** on collections and individual items
+- **Track your portfolio** with real-time analytics
+- **Access exclusive drops** and early launches
 
-## Generate a new site
+### For Creators
+- **Launch your collection** with our powerful launchpad
+- **Set royalties** and earn from secondary sales
+- **Build your community** with integrated tools
+- **Gain insights** from detailed analytics
 
-Generate a new Docusaurus site using the **classic template**.
+### For Developers
+- **Integrate with APIs** to build custom applications
+- **Access SDKs** for seamless development
+- **Join our ecosystem** of partners and builders
 
-The classic template will automatically be added to your project after you run the command:
+## 🌟 Why Choose Sonova?
 
-```bash
-npm init docusaurus@latest my-website classic
-```
+- **🎮 Sony Ecosystem Integration**: Native support for Sony's digital content and services
+- **💰 Low Transaction Fees**: Optimized for cost-effective trading on Soneium
+- **🎨 Creator-First**: Tools and features designed specifically for digital artists  
+- **🔒 Enterprise Security**: Bank-grade security with regular audits
+- **🌍 Global Reach**: Available worldwide with multi-language support
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+## 📚 Documentation Structure
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+- **[Trading Guide](./category/trading)** - Learn how to buy, sell, and trade NFTs
+- **[Creator Guide](./category/creating)** - Launch and manage your NFT collections
+- **[Launchpad](./category/launchpad)** - Everything about our NFT launch platform
+- **[API Reference](./category/developers)** - Technical documentation for developers
+- **[Troubleshooting](./category/help)** - Common issues and solutions
 
-## Start your site
+## 🆘 Need Help?
 
-Run the development server:
+- Join our [Discord community](https://discord.gg/sonova) for real-time support
+- Check our [Troubleshooting guide](./category/help) for common issues
+- Contact our [Support team](./help/contact) for technical assistance
 
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Ready to start your NFT journey? Let's dive in! 🎉
