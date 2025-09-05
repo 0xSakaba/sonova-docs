@@ -42,10 +42,11 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
+          routeBasePath: '/', // Serve the docs at the site's root
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/sonova/sonova-docs/tree/main/',
+            'https://github.com/0xSakaba/sonova-docs/tree/main/',
         },
         blog: false, // Disable blog feature
         theme: {
@@ -81,19 +82,19 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/intro',
+              to: '/intro',
             },
             {
               label: 'Trading Guide',
-              to: '/docs/category/trading',
+              to: '/category/trading',
             },
             {
               label: 'Creator Guide',
-              to: '/docs/category/creating',
+              to: '/category/creating',
             },
             {
               label: 'Launchpad',
-              to: '/docs/category/launchpad',
+              to: '/category/launchpad',
             },
           ],
         },
@@ -110,7 +111,7 @@ const config: Config = {
             },
             {
               label: 'Support',
-              href: '/docs/help/contact',
+              href: '/help/contact',
             },
           ],
         },
