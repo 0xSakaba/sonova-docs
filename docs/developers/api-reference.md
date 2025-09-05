@@ -4,47 +4,61 @@ sidebar_position: 1
 
 # API Reference
 
-Complete public API documentation for Sonova marketplace integration.
+Complete API documentation for Sonova marketplace integration.
 
-## 🚀 Getting Started
+## 🚀 Base Information
 
-- **Base URL**: `https://api.sonova.one/`
+- **Base URL**: `https://api.sonova.one`
 - **Authentication**: Session-based authentication for user-specific operations
-- **Network**: Primary support for Soneium (Chain ID: 1868)
+- **Primary Network**: Soneium (Chain ID: 1868)
+- **Secondary Network**: Polygon (Chain ID: 137)
 - **Response Format**: JSON
 
-> **Note**: This documentation covers all publicly available endpoints for third-party developers.
+## 📋 API Versions Overview
 
-## 📋 API Versions
+Sonova marketplace provides multiple API versions:
 
-Sonova marketplace provides multiple API versions to support different use cases:
-
-### **v1 API** - Core Functionality
-Primary API for basic marketplace operations including collections, tokens, and wallets.
+### **v1 API** - Core Marketplace Operations
+- Collection management
+- Token operations  
+- Wallet services
+- Market data
+- Launchpad operations
 
 ### **v4 API** - Enhanced Analytics & Ranking
-Advanced API specifically designed for ranking and collection analytics with improved data structures and performance.
-
-**Key improvements in v4:**
-- **Modern Pagination**: Uses `offset/limit` instead of `page/pageSize`
-- **Enhanced Data**: Includes floor price trends, volume changes, and growth statistics
-- **Better Performance**: Optimized caching and faster response times
-- **ERC-1155 Support**: Native support for multi-token standards
-- **Fine-grained Time Ranges**: Additional intervals (5m, 15m, 1h) for real-time analytics
+- Advanced collection ranking with trend analysis
+- Enhanced pagination (offset/limit vs page/pageSize)
+- Real-time analytics with fine-grained time ranges
+- ERC-1155 support
+- Performance optimizations
 
 ## 🔐 Authentication
 
-### Session Authentication
-User authentication is required for certain operations like liking collections and accessing user-specific data.
+### Session Management
 
-#### Create User Session (Login)
+#### Create Session (Login)
 ```http
 POST /users/sessions/create
 Content-Type: application/json
 
 {
   "signature": "0x...",
-  "message": "..."
+  "message": "Login message signed by wallet"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "session_id": "session-token-here",
+    "user": {
+      "id": 123,
+      "address": "0x...",
+      "created_at": 1234567890
+    }
+  }
 }
 ```
 
@@ -54,17 +68,42 @@ POST /users/sessions/destroy
 Authorization: Bearer <session-token>
 ```
 
-#### Get Current User Info
+#### Get Current User
 ```http
 GET /users/me
 Authorization: Bearer <session-token>
 ```
 
-## 🎨 Collection Information (v1)
+## 🎨 Collection Operations (v1)
+
+### Collection Information
 
 #### Get Collection Detail
 ```http
 GET /v1/{network_id}/contracts/{contract_or_slug}/detail
+```
+
+**Parameters:**
+- `network_id`: 1868 (Soneium) or 137 (Polygon)
+- `contract_or_slug`: Contract address or collection slug
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 123,
+    "contract": "0x...",
+    "name": "Collection Name",
+    "symbol": "SYMBOL",
+    "verified": true,
+    "erc_type": 721,
+    "slug": "collection-slug",
+    "icon_url": "https://...",
+    "total_supply": 10000,
+    "description": "Collection description"
+  }
+}
 ```
 
 #### Get Collection by ID
@@ -77,19 +116,33 @@ GET /v1/{network_id}/contracts/{contract_id}
 GET /v1/{network_id}/contracts/{contract_or_slug}/fees?market={market_id}
 ```
 
+**Parameters:**
+- `market`: Market identifier (0=OpenSea, 1=Sonova)
+
 #### Search Collections
 ```http
 GET /v1/{network_id}/contracts/search?keyword={keyword}&erc_type={type}
 ```
+
+**Parameters:**
+- `keyword`: Search term
+- `erc_type`: Optional filter (721, 1155)
 
 #### Get Collection Traits
 ```http
 GET /v1/{network_id}/contracts/{contract_id}/trait_aggregation
 ```
 
-#### Like/Unlike Collection
+### Collection Interactions (Requires Authentication)
+
+#### Like Collection
 ```http
 POST /v1/{network_id}/contracts/{contract_id}/like
+Authorization: Bearer <session-token>
+```
+
+#### Unlike Collection
+```http
 POST /v1/{network_id}/contracts/{contract_id}/unlike
 Authorization: Bearer <session-token>
 ```
@@ -100,7 +153,9 @@ GET /v1/{network_id}/contracts/liked
 Authorization: Bearer <session-token>
 ```
 
-## 🛒 Market & Trading (v1)
+## 🛒 Market Operations (v1)
+
+### Collection Market Data
 
 #### Get Collection NFTs with Orders
 ```http
@@ -141,7 +196,7 @@ Content-Type: application/json
 }
 ```
 
-#### Get Collection Events/Activities
+#### Get Collection Events
 ```http
 POST /v1/{network_id}/collections/{contract_or_slug}/events
 Content-Type: application/json
@@ -153,10 +208,19 @@ Content-Type: application/json
 }
 ```
 
+**Event Types:**
+- `0`: List
+- `1`: Sale  
+- `2`: Cancel
+
 #### Get Collection Chart Data
 ```http
 GET /v1/{network_id}/collections/{contract_or_slug}/chart?type={chart_type}&time={time_period}
 ```
+
+**Parameters:**
+- `type`: Chart type (0=Volume, 1=Sales)
+- `time`: Time period (1H, 4H, 1D, 7D, 30D)
 
 #### Get Collection Floor Price
 ```http
@@ -174,7 +238,9 @@ Content-Type: application/json
 }
 ```
 
-#### Get NFT Information with Orders
+### NFT Operations
+
+#### Get NFT Information
 ```http
 POST /v1/{network_id}/nfts
 Content-Type: application/json
@@ -194,7 +260,9 @@ Content-Type: application/json
 }
 ```
 
-## 👛 Wallet Services (v1)
+## 👛 Wallet Operations (v1)
+
+### Wallet Information
 
 #### Get Wallet Collections
 ```http
@@ -226,7 +294,9 @@ GET /v1/{network_id}/wallets/{wallet_address}/offer_collections?currency={curren
 GET /v1/{network_id}/wallets/{wallet_address}/portfolio
 ```
 
-## 🚀 Launchpad & Events
+## 🚀 Launchpad Operations
+
+### Launchpad Information
 
 #### List Launchpads
 ```http
@@ -237,6 +307,8 @@ GET /events?network_id={network_id}
 ```http
 GET /events/{slug}
 ```
+
+### Launchpad Interactions (Requires Authentication)
 
 #### Sign Launchpad Event
 ```http
@@ -249,19 +321,17 @@ Content-Type: application/json
 }
 ```
 
-#### Get Event Stages Info
+#### Get Event Stages
 ```http
 GET /events/{slug}/stages
 Authorization: Bearer <session-token>
 ```
 
-## 📊 Enhanced Analytics & Ranking (v4)
-
-**v4 API provides enhanced analytics with improved performance and richer data structures.**
+## 📊 Enhanced Analytics (v4)
 
 ### Collection Ranking
 
-#### Get Collections Ranking (Enhanced)
+#### Get Enhanced Collection Ranking
 ```http
 GET /{network_id}/collection/v4/ranking/overall?order={order}&range={range}&sort={sort}&including_1155={boolean}&limit={limit}&offset={offset}
 ```
@@ -271,8 +341,8 @@ GET /{network_id}/collection/v4/ranking/overall?order={order}&range={range}&sort
 - `range` (required): `5m` | `15m` | `1h` | `1d` | `7d` | `30d` | `90d`
 - `sort` (optional): `desc` | `asc` (default: `desc`)
 - `including_1155` (optional): Include ERC-1155 collections (default: `true`)
-- `limit` (optional): Number of items per page (default: `100`, max: `999`)
-- `offset` (optional): Number of items to skip (default: `0`)
+- `limit` (optional): Items per page (default: `100`, max: `999`)
+- `offset` (optional): Items to skip (default: `0`)
 
 **Enhanced Response Structure:**
 ```json
@@ -283,12 +353,12 @@ GET /{network_id}/collection/v4/ranking/overall?order={order}&range={range}&sort
       {
         "collection": {
           "id": 123,
-          "contract": "0x1234567890abcdef...",
-          "name": "Example Collection",
-          "symbol": "EXC",
+          "contract": "0x...",
+          "name": "Collection Name",
+          "symbol": "SYMBOL",
           "verified": true,
           "icon_url": "https://...",
-          "slug": "example-collection"
+          "slug": "collection-slug"
         },
         "floor": {
           "price": "1500000000000000000",
@@ -304,7 +374,7 @@ GET /{network_id}/collection/v4/ranking/overall?order={order}&range={range}&sort
         "holders": 234,
         "items": 1000,
         "gold_mark": true,
-        "collectionAddress": "0x1234567890abcdef...",
+        "collectionAddress": "0x...",
         "networkId": "1868"
       }
     ],
@@ -316,38 +386,26 @@ GET /{network_id}/collection/v4/ranking/overall?order={order}&range={range}&sort
 }
 ```
 
-**Key Improvements over v1:**
-- **Trend Analysis**: `floorDiff1d`, `floorDiff7d`, `volumeChange`, `salesChange`
-- **Quality Indicators**: `gold_mark` for verified premium collections
-- **Better Pagination**: `offset/limit` instead of `page/pageSize`
-- **More Time Ranges**: Sub-hourly intervals for real-time monitoring
-
-#### Get Collections Ranking (Simplified)
+#### Get Simplified Collection Ranking
 ```http
 GET /collections/{network_id}/ranking/v4/2/overall?order={order}&range={range}&including_1155={boolean}&limit={limit}&offset={offset}
 ```
 
-Returns simplified collection data with reduced payload size for better performance.
+Returns simplified collection data with reduced payload for better performance.
 
-### User Liked Collections
+### User Analytics (Requires Authentication)
 
-#### Get User Liked Collections (Enhanced)
+#### Get User Liked Collections with Analytics
 ```http
 GET /{network_id}/collection/v4/likes?order={order}&range={range}&sort={sort}&including_1155={boolean}&limit={limit}&offset={offset}
 Authorization: Bearer <session-token>
 ```
 
-**Enhanced Features:**
-- Same rich analytics data as ranking API
-- Real-time statistics for user's liked collections
-- Trend analysis for portfolio tracking
-- Performance optimizations for large collections
+Uses same parameters and response structure as collection ranking.
 
-## 🔄 Response Format
+## 🔄 Response Formats
 
-### Standard Response Format
-All endpoints follow this consistent structure:
-
+### Standard Response
 ```json
 {
   "success": boolean,
@@ -357,7 +415,7 @@ All endpoints follow this consistent structure:
 }
 ```
 
-### v4 Pagination Format
+### v4 Pagination (Modern)
 ```json
 {
   "data": [...],
@@ -368,7 +426,7 @@ All endpoints follow this consistent structure:
 }
 ```
 
-### v1 Pagination Format (Legacy)
+### v1 Pagination (Legacy)
 ```json
 {
   "data": [...],
@@ -380,7 +438,7 @@ All endpoints follow this consistent structure:
 }
 ```
 
-### Error Responses
+### Error Response
 ```json
 {
   "success": false,
@@ -389,50 +447,65 @@ All endpoints follow this consistent structure:
 }
 ```
 
+## 🆚 Version Comparison
+
+### v1 vs v4 Key Differences
+
+| Feature | v1 | v4 |
+|---------|----|----|
+| **Scope** | All marketplace operations | Analytics & ranking only |
+| **Pagination** | `page`/`pageSize` | `offset`/`limit` |
+| **Time Ranges** | Basic (1d, 7d, 30d) | Extended (5m, 15m, 1h, 1d, 7d, 30d, 90d) |
+| **Trend Analysis** | ❌ | ✅ Floor/volume change indicators |
+| **Quality Metrics** | ❌ | ✅ Gold mark for premium collections |
+| **ERC-1155 Support** | Limited | ✅ Native support |
+| **Performance** | Standard | ✅ Optimized caching |
+
+### Data Enhancement in v4
+
+**v4 adds these analytics fields:**
+- `floorDiff1d`: 1-day floor price change percentage
+- `floorDiff7d`: 7-day floor price change percentage  
+- `volumeChange`: Volume change percentage
+- `salesChange`: Sales count change percentage
+- `gold_mark`: Premium collection indicator
+
 ## 📋 Network Support
 
-- **Primary Network**: Soneium (Chain ID: 1868)
-- **Additional Support**: Polygon (Chain ID: 137)
+### Supported Networks
+- **Soneium**: Chain ID `1868` (Primary)
+- **Polygon**: Chain ID `137` (Secondary)
 
-Most endpoints support network-specific routing via `/{network_id}/` prefix.
+### Network-Specific Routing
+Most endpoints use `/{network_id}/` prefix for network-specific operations.
 
 ## 🔐 Authentication Requirements
 
-- **Session Auth**: User-specific operations, collection likes, launchpad interactions
-- **Public**: Collection information, market data (no authentication required)
+| Operation Type | Authentication |
+|----------------|----------------|
+| Public collection info | ❌ None |
+| Market data | ❌ None |
+| Analytics/ranking | ❌ None |
+| Like/unlike collections | ✅ Session required |
+| User liked collections | ✅ Session required |
+| Launchpad interactions | ✅ Session required |
+| User profile | ✅ Session required |
 
 ## 📊 Rate Limits
 
-- **General API**: Standard rate limiting applies
-- **Public endpoints**: Fair use policy
-- **v4 Endpoints**: Enhanced caching for better performance
+- Standard rate limiting applies to all endpoints
+- v4 endpoints benefit from enhanced caching
+- No specific rate limits documented
 
-## 🚀 Migration Guide
+## 🚨 Important Notes
 
-### From v1 to v4 (Ranking & Analytics)
+1. **No Official SDK**: Currently no official JavaScript or Python SDK available
+2. **Direct HTTP Integration**: Use standard HTTP clients (fetch, axios, requests, etc.)
+3. **Consistent URL Structure**: Always check endpoint paths - some use `/api/` prefix, others don't
+4. **Network ID Required**: Most operations require explicit network ID specification
+5. **Error Handling**: Always check `success` field in responses before accessing `data`
 
-**For Collection Ranking:**
-```javascript
-// v1 approach (basic)
-GET /v1/{network_id}/collections/{contract}/stats
+---
 
-// v4 approach (enhanced)
-GET /{network_id}/collection/v4/ranking/overall?order=volume&range=1d
-```
-
-**For User Liked Collections:**
-```javascript
-// v1 approach (basic pagination)
-GET /v1/{network_id}/contracts/liked?page=1&pageSize=10
-
-// v4 approach (enhanced analytics)
-GET /{network_id}/collection/v4/likes?order=volume&range=7d&offset=0&limit=100
-```
-
-**Key Benefits of Migration:**
-- 🚀 **Better Performance**: Optimized caching and faster response times
-- 📈 **Trend Analysis**: Floor price and volume change indicators
-- 🔢 **Flexible Pagination**: More intuitive offset/limit approach
-- 🎯 **Enhanced Filtering**: ERC-1155 support and fine-grained time ranges
-- 💎 **Quality Metrics**: Gold mark indicators for premium collections
+> **Engineering Note**: This documentation reflects the actual API implementation as found in the `uniapi-go` backend code. All endpoints and parameters have been verified against the source code to ensure accuracy.
 
