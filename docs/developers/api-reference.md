@@ -9,26 +9,16 @@ Complete public API documentation for Sonova marketplace integration.
 ## 🚀 Getting Started
 
 - **Base URL**: `https://api.sonova.one/`
-- **OpenAPI Base URL**: `https://api.sonova.one/open/`
-- **Authentication**: Bearer token via `X-API-KEY` header or session authentication
+- **Authentication**: Session-based authentication for user-specific operations
 - **Network**: Primary support for Soneium (Chain ID: 1868)
 - **Response Format**: JSON
 
 > **Note**: This documentation covers all publicly available endpoints for third-party developers.
 
-## 🔐 Authentication Methods
-
-### API Key Authentication
-```http
-X-API-KEY: your-api-key-here
-```
+## 🔐 Authentication
 
 ### Session Authentication
-Some endpoints require session-based authentication for user-specific data.
-
-## 📚 Public API Endpoints
-
-### 👤 User Authentication
+User authentication is required for certain operations like liking collections and accessing user-specific data.
 
 #### Create User Session (Login)
 ```http
@@ -53,7 +43,7 @@ GET /api/users/me
 Authorization: Bearer <session-token>
 ```
 
-### 🎨 Collection Information
+## 🎨 Collection Information
 
 #### Get Collection Detail
 ```http
@@ -93,7 +83,7 @@ GET /api/v1/{network_id}/contracts/liked
 Authorization: Bearer <session-token>
 ```
 
-### 🛒 Market & Trading
+## 🛒 Market & Trading
 
 #### Get Collection NFTs with Orders
 ```http
@@ -187,7 +177,7 @@ Content-Type: application/json
 }
 ```
 
-### 👛 Wallet Services
+## 👛 Wallet Services
 
 #### Get Wallet Collections
 ```http
@@ -219,7 +209,7 @@ GET /api/v1/{network_id}/wallets/{wallet_address}/offer_collections?currency={cu
 GET /api/v1/{network_id}/wallets/{wallet_address}/portfolio
 ```
 
-### 🚀 Launchpad & Events
+## 🚀 Launchpad & Events
 
 #### List Launchpads
 ```http
@@ -248,109 +238,6 @@ GET /api/events/{slug}/stages
 Authorization: Bearer <session-token>
 ```
 
-## 🔧 OpenAPI Endpoints
-
-### 📋 Orders Management
-
-#### Query Orders
-```http
-GET /open/v1/{network_id}/orders?contract={contract}&token_id={token_id}&maker={maker}&only_sonova={boolean}&currency={currency}&limit={limit}&offset={offset}
-X-API-KEY: your-api-key
-```
-
-#### Get Order by Hash
-```http
-GET /open/v1/{network_id}/orders/{order_hash}
-X-API-KEY: your-api-key
-```
-
-#### Add Order
-```http
-POST /open/v1/{network_id}/orders/add
-X-API-KEY: your-api-key
-Content-Type: application/json
-```
-
-#### Cancel Order
-```http
-POST /open/v1/{network_id}/orders/{order_hash}/cancel
-X-API-KEY: your-api-key
-```
-
-#### Sign Orders
-```http
-POST /open/v1/{network_id}/orders/sign
-X-API-KEY: your-api-key
-```
-
-### 💰 Offers Management
-
-#### Query Offers
-```http
-GET /open/v1/{network_id}/offers?contract={contract}&maker={maker}&limit={limit}&offset={offset}
-X-API-KEY: your-api-key
-```
-
-#### Get Offer by Hash
-```http
-GET /open/v1/{network_id}/offers/{order_hash}
-X-API-KEY: your-api-key
-```
-
-#### Add Offer
-```http
-POST /open/v1/{network_id}/offers/add
-X-API-KEY: your-api-key
-```
-
-#### Sign Offers
-```http
-POST /open/v1/{network_id}/offers/sign
-X-API-KEY: your-api-key
-```
-
-### 📊 Market Analytics
-
-#### Get Market Activity
-```http
-GET /open/v1/{network_id}/activity?contract={contract}&token_id={token_id}&limit={limit}&offset={offset}
-X-API-KEY: your-api-key
-```
-
-#### Get Market Statistics
-```http
-GET /open/v1/{network_id}/stats?contract={contract}
-X-API-KEY: your-api-key
-```
-
-### 🎯 Token & Contract Info
-
-#### Get Token Information
-```http
-GET /open/v1/{network_id}/tokens/{contract}/{token_id}
-X-API-KEY: your-api-key
-```
-
-#### Get Contract Information
-```http
-GET /open/v1/{network_id}/contracts/{contract}
-X-API-KEY: your-api-key
-```
-
-### 👤 Wallet Services (OpenAPI)
-
-#### Get Wallet Tokens
-```http
-GET /open/v1/{network_id}/wallets/{wallet_address}/tokens?limit={limit}&offset={offset}
-X-API-KEY: your-api-key
-```
-
-#### Query Wallet Contracts
-```http
-GET /open/v1/{network_id}/wallets/{wallet_address}/contracts?limit={limit}&offset={offset}
-X-API-KEY: your-api-key
-```
-
 ## 🔄 Response Format
 
 Standard response format for all endpoints:
@@ -377,19 +264,16 @@ Standard response format for all endpoints:
 
 - **Primary Network**: Soneium (Chain ID: 1868)
 - **Additional Support**: Polygon (Chain ID: 137)
-- **OpenAPI**: Supports multiple networks
 
 Most endpoints support network-specific routing via `/:network_id/` prefix.
 
 ## 🔐 Authentication Requirements
 
 - **Session Auth**: User-specific operations, collection likes, launchpad interactions
-- **API Key**: OpenAPI endpoints, public data access
 - **Public**: Collection information, market data (no authentication required)
 
 ## 📊 Rate Limits
 
 - **General API**: Standard rate limiting applies
-- **OpenAPI**: Rate limited per API key
 - **Public endpoints**: Fair use policy
 

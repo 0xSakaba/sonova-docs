@@ -14,17 +14,14 @@ Sonova doesn't have an official SDK. Integration uses direct API calls covering 
 
 ```javascript
 const SONOVA_API_BASE = 'https://api.sonova.one';
-const SONOVA_OPENAPI_BASE = 'https://api.sonova.one/open';
 const SONEIUM_CHAIN_ID = 1868;
 const POLYGON_CHAIN_ID = 137;
 
-// API helper with authentication support
+// API helper with session authentication support
 class SonovaAPI {
-  constructor(apiKey, sessionToken = null, useOpenAPI = false) {
-    this.apiKey = apiKey;
+  constructor(sessionToken = null) {
     this.sessionToken = sessionToken;
-    this.baseURL = useOpenAPI ? SONOVA_OPENAPI_BASE : SONOVA_API_BASE;
-    this.useOpenAPI = useOpenAPI;
+    this.baseURL = SONOVA_API_BASE;
   }
 
   async request(endpoint, options = {}) {
@@ -33,11 +30,6 @@ class SonovaAPI {
       'Content-Type': 'application/json',
       ...options.headers
     };
-
-    // Add API key if available
-    if (this.apiKey) {
-      headers['X-API-KEY'] = this.apiKey;
-    }
 
     // Add session token if available
     if (this.sessionToken) {
@@ -64,8 +56,7 @@ class SonovaAPI {
 }
 
 // Usage
-const api = new SonovaAPI('your-api-key');
-const openApi = new SonovaAPI('your-api-key', null, true); // For OpenAPI endpoints
+const api = new SonovaAPI();
 // For authenticated requests
 api.setSessionToken('your-session-token');
 ```
@@ -82,7 +73,7 @@ class UserService {
 
   // Login with signature
   async login(signature, message) {
-    return await this.api.request('/users/sessions/create', {
+    return await this.api.request('/api/users/sessions/create', {
       method: 'POST',
       body: JSON.stringify({ signature, message })
     });
@@ -90,14 +81,14 @@ class UserService {
 
   // Logout
   async logout() {
-    return await this.api.request('/users/sessions/destroy', {
+    return await this.api.request('/api/users/sessions/destroy', {
       method: 'POST'
     });
   }
 
   // Get current user info
   async getCurrentUser() {
-    return await this.api.request('/users/me');
+    return await this.api.request('/api/users/me');
   }
 }
 ```
@@ -114,48 +105,48 @@ class CollectionService {
 
   // Get collection detail
   async getCollectionDetail(networkId, contractOrSlug) {
-    return await this.api.request(`/v1/${networkId}/contracts/${contractOrSlug}/detail`);
+    return await this.api.request(`/api/v1/${networkId}/contracts/${contractOrSlug}/detail`);
   }
 
   // Get collection by ID
   async getCollection(networkId, contractId) {
-    return await this.api.request(`/v1/${networkId}/contracts/${contractId}`);
+    return await this.api.request(`/api/v1/${networkId}/contracts/${contractId}`);
   }
 
   // Get collection fees
   async getCollectionFees(networkId, contractOrSlug, market) {
-    return await this.api.request(`/v1/${networkId}/contracts/${contractOrSlug}/fees?market=${market}`);
+    return await this.api.request(`/api/v1/${networkId}/contracts/${contractOrSlug}/fees?market=${market}`);
   }
 
   // Search collections
   async searchCollections(networkId, keyword, ercType = null) {
-    let url = `/v1/${networkId}/contracts/search?keyword=${encodeURIComponent(keyword)}`;
+    let url = `/api/v1/${networkId}/contracts/search?keyword=${encodeURIComponent(keyword)}`;
     if (ercType) url += `&erc_type=${ercType}`;
     return await this.api.request(url);
   }
 
   // Get collection traits
   async getCollectionTraits(networkId, contractId) {
-    return await this.api.request(`/v1/${networkId}/contracts/${contractId}/trait_aggregation`);
+    return await this.api.request(`/api/v1/${networkId}/contracts/${contractId}/trait_aggregation`);
   }
 
-  // Like collection
+  // Like collection (requires authentication)
   async likeCollection(networkId, contractId) {
-    return await this.api.request(`/v1/${networkId}/contracts/${contractId}/like`, {
+    return await this.api.request(`/api/v1/${networkId}/contracts/${contractId}/like`, {
       method: 'POST'
     });
   }
 
-  // Unlike collection
+  // Unlike collection (requires authentication)
   async unlikeCollection(networkId, contractId) {
-    return await this.api.request(`/v1/${networkId}/contracts/${contractId}/unlike`, {
+    return await this.api.request(`/api/v1/${networkId}/contracts/${contractId}/unlike`, {
       method: 'POST'
     });
   }
 
-  // Get liked collections
+  // Get liked collections (requires authentication)
   async getLikedCollections(networkId) {
-    return await this.api.request(`/v1/${networkId}/contracts/liked`);
+    return await this.api.request(`/api/v1/${networkId}/contracts/liked`);
   }
 }
 ```
@@ -177,7 +168,7 @@ class MarketService {
       offset: 0
     };
     
-    return await this.api.request(`/v1/${networkId}/collections/${contractOrSlug}/nfts`, {
+    return await this.api.request(`/api/v1/${networkId}/collections/${contractOrSlug}/nfts`, {
       method: 'POST',
       body: JSON.stringify({ ...defaultFilters, ...filters })
     });
@@ -185,14 +176,14 @@ class MarketService {
 
   // Get collection offers
   async getCollectionOffers(networkId, contractOrSlug, currency = null) {
-    let url = `/v1/${networkId}/collections/${contractOrSlug}/offers`;
+    let url = `/api/v1/${networkId}/collections/${contractOrSlug}/offers`;
     if (currency) url += `?currency=${currency}`;
     return await this.api.request(url);
   }
 
   // Check collection offers
   async checkCollectionOffers(networkId, contractOrSlug, amount, currency = 'ETH') {
-    return await this.api.request(`/v1/${networkId}/collections/${contractOrSlug}/offers`, {
+    return await this.api.request(`/api/v1/${networkId}/collections/${contractOrSlug}/offers`, {
       method: 'POST',
       body: JSON.stringify({ amount, currency })
     });
@@ -206,7 +197,7 @@ class MarketService {
       offset: 0
     };
     
-    return await this.api.request(`/v1/${networkId}/collections/${contractOrSlug}/events`, {
+    return await this.api.request(`/api/v1/${networkId}/collections/${contractOrSlug}/events`, {
       method: 'POST',
       body: JSON.stringify({ ...defaultFilters, ...filters })
     });
@@ -214,12 +205,12 @@ class MarketService {
 
   // Get collection chart data
   async getCollectionChart(networkId, contractOrSlug, type = 0, time = '4H') {
-    return await this.api.request(`/v1/${networkId}/collections/${contractOrSlug}/chart?type=${type}&time=${time}`);
+    return await this.api.request(`/api/v1/${networkId}/collections/${contractOrSlug}/chart?type=${type}&time=${time}`);
   }
 
   // Get collection floor price
   async getCollectionFloor(networkId, contractOrSlug) {
-    return await this.api.request(`/v1/${networkId}/collections/${contractOrSlug}/floor`);
+    return await this.api.request(`/api/v1/${networkId}/collections/${contractOrSlug}/floor`);
   }
 
   // Get collection sales
@@ -229,7 +220,7 @@ class MarketService {
       offset: 0
     };
     
-    return await this.api.request(`/v1/${networkId}/collections/${contractOrSlug}/sales`, {
+    return await this.api.request(`/api/v1/${networkId}/collections/${contractOrSlug}/sales`, {
       method: 'POST',
       body: JSON.stringify({ ...defaultFilters, ...filters })
     });
@@ -237,7 +228,7 @@ class MarketService {
 
   // Get NFT information with orders
   async getNFTs(networkId, nftIds) {
-    return await this.api.request(`/v1/${networkId}/nfts`, {
+    return await this.api.request(`/api/v1/${networkId}/nfts`, {
       method: 'POST',
       body: JSON.stringify({ nft_ids: nftIds })
     });
@@ -245,7 +236,7 @@ class MarketService {
 
   // Get NFT trait floor prices
   async getNFTTraitFloors(networkId, nftIds) {
-    return await this.api.request(`/v1/${networkId}/nfts/trait_floor`, {
+    return await this.api.request(`/api/v1/${networkId}/nfts/trait_floor`, {
       method: 'POST',
       body: JSON.stringify({ nft_ids: nftIds })
     });
@@ -266,7 +257,7 @@ class WalletService {
   // Get wallet collections
   async getWalletCollections(networkId, walletAddress, filters = {}) {
     const queryString = new URLSearchParams(filters).toString();
-    return await this.api.request(`/v1/${networkId}/wallets/${walletAddress}/collections?${queryString}`);
+    return await this.api.request(`/api/v1/${networkId}/wallets/${walletAddress}/collections?${queryString}`);
   }
 
   // Get wallet tokens
@@ -276,7 +267,7 @@ class WalletService {
       limit: 20
     };
     const queryString = new URLSearchParams({ ...defaultFilters, ...filters }).toString();
-    return await this.api.request(`/v1/${networkId}/wallets/${walletAddress}/tokens?${queryString}`);
+    return await this.api.request(`/api/v1/${networkId}/wallets/${walletAddress}/tokens?${queryString}`);
   }
 
   // Get wallet listed tokens
@@ -286,7 +277,7 @@ class WalletService {
       limit: 20
     };
     const queryString = new URLSearchParams({ ...defaultFilters, ...filters }).toString();
-    return await this.api.request(`/v1/${networkId}/wallets/${walletAddress}/listed?${queryString}`);
+    return await this.api.request(`/api/v1/${networkId}/wallets/${walletAddress}/listed?${queryString}`);
   }
 
   // Get wallet offers
@@ -296,19 +287,19 @@ class WalletService {
       limit: 20
     };
     const queryString = new URLSearchParams({ ...defaultFilters, ...filters }).toString();
-    return await this.api.request(`/v1/${networkId}/wallets/${walletAddress}/offers?${queryString}`);
+    return await this.api.request(`/api/v1/${networkId}/wallets/${walletAddress}/offers?${queryString}`);
   }
 
   // Get wallet offer collections
   async getWalletOfferCollections(networkId, walletAddress, currency = null) {
-    let url = `/v1/${networkId}/wallets/${walletAddress}/offer_collections`;
+    let url = `/api/v1/${networkId}/wallets/${walletAddress}/offer_collections`;
     if (currency) url += `?currency=${currency}`;
     return await this.api.request(url);
   }
 
   // Get wallet portfolio
   async getWalletPortfolio(networkId, walletAddress) {
-    return await this.api.request(`/v1/${networkId}/wallets/${walletAddress}/portfolio`);
+    return await this.api.request(`/api/v1/${networkId}/wallets/${walletAddress}/portfolio`);
   }
 }
 ```
@@ -325,172 +316,25 @@ class LaunchpadService {
 
   // List launchpads
   async listLaunchpads(networkId) {
-    return await this.api.request(`/events?network_id=${networkId}`);
+    return await this.api.request(`/api/events?network_id=${networkId}`);
   }
 
   // Get launchpad details
   async getLaunchpad(slug) {
-    return await this.api.request(`/events/${slug}`);
+    return await this.api.request(`/api/events/${slug}`);
   }
 
-  // Sign launchpad event
+  // Sign launchpad event (requires authentication)
   async signEvent(slug, mintAmount) {
-    return await this.api.request(`/events/${slug}/sign`, {
+    return await this.api.request(`/api/events/${slug}/sign`, {
       method: 'POST',
       body: JSON.stringify({ mint_amount: mintAmount })
     });
   }
 
-  // Get event stages info
+  // Get event stages info (requires authentication)
   async getEventStages(slug) {
-    return await this.api.request(`/events/${slug}/stages`);
-  }
-}
-```
-
-## 🔧 OpenAPI Services
-
-### OpenAPI Orders
-
-```javascript
-class OpenAPIOrderService {
-  constructor(api) {
-    this.api = api; // Should be initialized with useOpenAPI = true
-  }
-
-  // Query orders
-  async queryOrders(networkId, params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return await this.api.request(`/v1/${networkId}/orders?${queryString}`);
-  }
-
-  // Get order by hash
-  async getOrder(networkId, orderHash) {
-    return await this.api.request(`/v1/${networkId}/orders/${orderHash}`);
-  }
-
-  // Add order
-  async addOrder(networkId, orderData) {
-    return await this.api.request(`/v1/${networkId}/orders/add`, {
-      method: 'POST',
-      body: JSON.stringify(orderData)
-    });
-  }
-
-  // Cancel order
-  async cancelOrder(networkId, orderHash, cancelData) {
-    return await this.api.request(`/v1/${networkId}/orders/${orderHash}/cancel`, {
-      method: 'POST',
-      body: JSON.stringify(cancelData)
-    });
-  }
-
-  // Sign orders
-  async signOrders(networkId, ordersData) {
-    return await this.api.request(`/v1/${networkId}/orders/sign`, {
-      method: 'POST',
-      body: JSON.stringify(ordersData)
-    });
-  }
-}
-```
-
-### OpenAPI Offers
-
-```javascript
-class OpenAPIOfferService {
-  constructor(api) {
-    this.api = api; // Should be initialized with useOpenAPI = true
-  }
-
-  // Query offers
-  async queryOffers(networkId, params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return await this.api.request(`/v1/${networkId}/offers?${queryString}`);
-  }
-
-  // Get offer by hash
-  async getOffer(networkId, orderHash) {
-    return await this.api.request(`/v1/${networkId}/offers/${orderHash}`);
-  }
-
-  // Add offer
-  async addOffer(networkId, offerData) {
-    return await this.api.request(`/v1/${networkId}/offers/add`, {
-      method: 'POST',
-      body: JSON.stringify(offerData)
-    });
-  }
-
-  // Sign offers
-  async signOffers(networkId, offersData) {
-    return await this.api.request(`/v1/${networkId}/offers/sign`, {
-      method: 'POST',
-      body: JSON.stringify(offersData)
-    });
-  }
-}
-```
-
-### OpenAPI Analytics
-
-```javascript
-class OpenAPIAnalyticsService {
-  constructor(api) {
-    this.api = api; // Should be initialized with useOpenAPI = true
-  }
-
-  // Get market activity
-  async getActivity(networkId, params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return await this.api.request(`/v1/${networkId}/activity?${queryString}`);
-  }
-
-  // Get market statistics
-  async getStats(networkId, contract) {
-    return await this.api.request(`/v1/${networkId}/stats?contract=${contract}`);
-  }
-}
-```
-
-### OpenAPI Token Services
-
-```javascript
-class OpenAPITokenService {
-  constructor(api) {
-    this.api = api; // Should be initialized with useOpenAPI = true
-  }
-
-  // Get token information
-  async getToken(networkId, contract, tokenId) {
-    return await this.api.request(`/v1/${networkId}/tokens/${contract}/${tokenId}`);
-  }
-
-  // Get contract information
-  async getContract(networkId, contract) {
-    return await this.api.request(`/v1/${networkId}/contracts/${contract}`);
-  }
-}
-```
-
-### OpenAPI Wallet Services
-
-```javascript
-class OpenAPIWalletService {
-  constructor(api) {
-    this.api = api; // Should be initialized with useOpenAPI = true
-  }
-
-  // Get wallet tokens
-  async getWalletTokens(networkId, walletAddress, params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return await this.api.request(`/v1/${networkId}/wallets/${walletAddress}/tokens?${queryString}`);
-  }
-
-  // Query wallet contracts
-  async queryWalletContracts(networkId, walletAddress, params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    return await this.api.request(`/v1/${networkId}/wallets/${walletAddress}/contracts?${queryString}`);
+    return await this.api.request(`/api/events/${slug}/stages`);
   }
 }
 ```
@@ -500,9 +344,8 @@ class OpenAPIWalletService {
 ```javascript
 // Complete Sonova SDK wrapper
 class SonovaSDK {
-  constructor(apiKey, sessionToken = null) {
-    this.api = new SonovaAPI(apiKey, sessionToken);
-    this.openAPI = new SonovaAPI(apiKey, null, true);
+  constructor(sessionToken = null) {
+    this.api = new SonovaAPI(sessionToken);
     
     // Initialize all public services
     this.users = new UserService(this.api);
@@ -510,13 +353,6 @@ class SonovaSDK {
     this.market = new MarketService(this.api);
     this.wallets = new WalletService(this.api);
     this.launchpad = new LaunchpadService(this.api);
-    
-    // OpenAPI services
-    this.openAPI.orders = new OpenAPIOrderService(this.openAPI);
-    this.openAPI.offers = new OpenAPIOfferService(this.openAPI);
-    this.openAPI.analytics = new OpenAPIAnalyticsService(this.openAPI);
-    this.openAPI.tokens = new OpenAPITokenService(this.openAPI);
-    this.openAPI.wallets = new OpenAPIWalletService(this.openAPI);
   }
 
   // Set session token for authenticated requests
@@ -524,7 +360,7 @@ class SonovaSDK {
     this.api.setSessionToken(token);
   }
 
-  // Get complete user profile
+  // Get complete user profile (requires authentication)
   async getUserProfile() {
     const profile = {
       userInfo: null,
@@ -580,7 +416,7 @@ class SonovaSDK {
 }
 
 // Usage example
-const sonova = new SonovaSDK('your-api-key');
+const sonova = new SonovaSDK();
 
 // For authenticated features
 sonova.setSessionToken('your-session-token');
@@ -600,12 +436,6 @@ const nfts = await sonova.market.getCollectionNFTs(1868, 'contract-address', {
 
 // Get wallet portfolio
 const portfolio = await sonova.getWalletPortfolio('0x1234567890abcdef...');
-
-// Use OpenAPI for orders
-const orders = await sonova.openAPI.orders.queryOrders(1868, {
-  contract: '0x...',
-  limit: 20
-});
 
 // Search collections
 const searchResults = await sonova.collections.searchCollections(1868, 'crypto');
@@ -652,7 +482,7 @@ class SonovaAPIEnhanced extends SonovaAPI {
 
 // Usage with error handling
 try {
-  const api = new SonovaAPIEnhanced('your-api-key');
+  const api = new SonovaAPIEnhanced();
   const result = await api.request('/some/endpoint');
 } catch (error) {
   if (error instanceof SonovaError) {

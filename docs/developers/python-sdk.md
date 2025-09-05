@@ -24,7 +24,6 @@ from typing import Dict, List, Optional, Union
 import json
 
 SONOVA_API_BASE = "https://api.sonova.one"
-SONOVA_OPENAPI_BASE = "https://api.sonova.one/open"
 SONEIUM_CHAIN_ID = 1868
 POLYGON_CHAIN_ID = 137
 
@@ -34,10 +33,9 @@ class SonovaAPIError(Exception):
         super().__init__(message)
 
 def sonova_api(endpoint: str, method: str = "GET", data: Optional[Dict] = None, 
-            headers: Optional[Dict] = None, use_openapi: bool = False) -> Dict:
+            headers: Optional[Dict] = None) -> Dict:
     """Helper function for API calls"""
-    base_url = SONOVA_OPENAPI_BASE if use_openapi else SONOVA_API_BASE
-    url = f"{base_url}{endpoint}"
+    url = f"{SONOVA_API_BASE}{endpoint}"
     
     default_headers = {"Content-Type": "application/json"}
     if headers:
@@ -75,13 +73,24 @@ def login_user(signature: str, message: str) -> Dict:
         print(f"Login failed: {e}")
         return {}
 
-def logout_user(headers: Dict) -> Dict:
+def logout_user(session_token: str) -> Dict:
     """Logout current user"""
     try:
         endpoint = "/api/users/sessions/destroy"
+        headers = {"Authorization": f"Bearer {session_token}"}
         return sonova_api(endpoint, method="POST", headers=headers)
     except Exception as e:
         print(f"Logout failed: {e}")
+        return {}
+
+def get_current_user(session_token: str) -> Dict:
+    """Get current user info"""
+    try:
+        endpoint = "/api/users/me"
+        headers = {"Authorization": f"Bearer {session_token}"}
+        return sonova_api(endpoint, headers=headers)
+    except Exception as e:
+        print(f"Failed to get user info: {e}")
         return {}
 ```
 
@@ -121,15 +130,26 @@ def get_collection_traits(network_id: int, contract_id: int) -> Dict:
         print(f"Failed to fetch collection traits: {e}")
         return {}
 
-def like_collection(network_id: int, contract_id: int, headers: Dict) -> bool:
+def like_collection(network_id: int, contract_id: int, session_token: str) -> bool:
     """Like a collection (requires auth)"""
     try:
         endpoint = f"/api/v1/{network_id}/contracts/{contract_id}/like"
+        headers = {"Authorization": f"Bearer {session_token}"}
         sonova_api(endpoint, method="POST", headers=headers)
         return True
     except Exception as e:
         print(f"Failed to like collection: {e}")
         return False
+
+def get_liked_collections(network_id: int, session_token: str) -> List[Dict]:
+    """Get user's liked collections (requires auth)"""
+    try:
+        endpoint = f"/api/v1/{network_id}/contracts/liked"
+        headers = {"Authorization": f"Bearer {session_token}"}
+        return sonova_api(endpoint, headers=headers)
+    except Exception as e:
+        print(f"Failed to get liked collections: {e}")
+        return []
 
 # Usage
 collection = get_collection_detail(1868, "my-collection-slug")
@@ -187,37 +207,43 @@ def search_collections(keyword: str, network_id: int = SONEIUM_CHAIN_ID) -> List
 
 ## 🔐 Authenticated Operations
 
-### Setup Authentication
+### Session Management
 
 ```python
 class SonovaClient:
-    def __init__(self, api_key: str):
-        self.api_key = api_key
+    def __init__(self, session_token: Optional[str] = None):
+        self.session_token = session_token
         self.base_url = SONOVA_API_BASE
         self.chain_id = SONEIUM_CHAIN_ID
         
     def _authenticated_request(self, endpoint: str, method: str = "GET", 
                              data: Optional[Dict] = None) -> Dict:
         """Make authenticated API request"""
-        headers = {
-            "Content-Type": "application/json",
-            "X-API-KEY": self.api_key
-        }
+        headers = {"Content-Type": "application/json"}
+        if self.session_token:
+            headers["Authorization"] = f"Bearer {self.session_token}"
         
         return sonova_api(endpoint, method=method, data=data, headers=headers)
+    
+    def set_session_token(self, token: str):
+        """Set session token for authenticated requests"""
+        self.session_token = token
     
     def get_user_session(self, signature: str, message: str) -> Dict:
         """Create user session"""
         try:
             endpoint = "/api/users/sessions/create"
             data = {"signature": signature, "message": message}
-            return self._authenticated_request(endpoint, method="POST", data=data)
+            result = sonova_api(endpoint, method="POST", data=data)
+            if result.get("session_id"):
+                self.session_token = result["session_id"]
+            return result
         except Exception as e:
             print(f"Failed to create session: {e}")
             return {}
 
 # Usage
-client = SonovaClient("your_api_key_here")
+client = SonovaClient()
 ```
 
 ## 🏗️ Wallet Integration
@@ -329,14 +355,25 @@ def get_launch_details(slug: str) -> Dict:
         print(f"Failed to fetch launch details: {e}")
         return {}
 
-def sign_launch_event(client: SonovaClient, slug: str, mint_amount: int) -> Dict:
-    """Sign a launch event for minting"""
+def sign_launch_event(slug: str, mint_amount: int, session_token: str) -> Dict:
+    """Sign a launch event for minting (requires authentication)"""
     try:
         endpoint = f"/api/events/{slug}/sign"
+        headers = {"Authorization": f"Bearer {session_token}"}
         data = {"mint_amount": mint_amount}
-        return client._authenticated_request(endpoint, method="POST", data=data)
+        return sonova_api(endpoint, method="POST", data=data, headers=headers)
     except Exception as e:
         print(f"Failed to sign event: {e}")
+        return {}
+
+def get_event_stages(slug: str, session_token: str) -> Dict:
+    """Get user's event stages info (requires authentication)"""
+    try:
+        endpoint = f"/api/events/{slug}/stages"
+        headers = {"Authorization": f"Bearer {session_token}"}
+        return sonova_api(endpoint, headers=headers)
+    except Exception as e:
+        print(f"Failed to get event stages: {e}")
         return {}
 ```
 

@@ -209,8 +209,7 @@ async function connectAndLogin() {
 ```javascript
 // Complete wallet portfolio integration
 class WalletPortfolio {
-  constructor(apiKey) {
-    this.apiKey = apiKey;
+  constructor() {
     this.apiBase = 'https://api.sonova.one/api';
   }
 
@@ -218,10 +217,7 @@ class WalletPortfolio {
   async getWalletCollections(walletAddress, networkId = 1868) {
     try {
       const response = await fetch(
-        `${this.apiBase}/v1/${networkId}/wallets/${walletAddress}/collections`,
-        {
-          headers: this.apiKey ? { 'X-API-KEY': this.apiKey } : {}
-        }
+        `${this.apiBase}/v1/${networkId}/wallets/${walletAddress}/collections`
       );
       
       const result = await response.json();
@@ -252,10 +248,7 @@ class WalletPortfolio {
       if (ercType) params.append('erc_type', ercType);
 
       const response = await fetch(
-        `${this.apiBase}/v1/${networkId}/wallets/${walletAddress}/tokens?${params}`,
-        {
-          headers: this.apiKey ? { 'X-API-KEY': this.apiKey } : {}
-        }
+        `${this.apiBase}/v1/${networkId}/wallets/${walletAddress}/tokens?${params}`
       );
       
       const result = await response.json();
@@ -270,10 +263,7 @@ class WalletPortfolio {
   async getPortfolioSummary(walletAddress, networkId = 1868) {
     try {
       const response = await fetch(
-        `${this.apiBase}/v1/${networkId}/wallets/${walletAddress}/portfolio`,
-        {
-          headers: this.apiKey ? { 'X-API-KEY': this.apiKey } : {}
-        }
+        `${this.apiBase}/v1/${networkId}/wallets/${walletAddress}/portfolio`
       );
       
       const result = await response.json();
@@ -311,7 +301,7 @@ class WalletPortfolio {
 }
 
 // Usage
-const portfolio = new WalletPortfolio('your-api-key');
+const portfolio = new WalletPortfolio();
 const walletData = await portfolio.getCompletePortfolio('0x1234567890abcdef...');
 ```
 
@@ -321,8 +311,7 @@ const walletData = await portfolio.getCompletePortfolio('0x1234567890abcdef...')
 ```javascript
 // Monitor collection market data
 class MarketMonitor {
-  constructor(apiKey) {
-    this.apiKey = apiKey;
+  constructor() {
     this.apiBase = 'https://api.sonova.one/api';
     this.subscriptions = new Map();
   }
@@ -406,164 +395,11 @@ class MarketMonitor {
 }
 
 // Usage
-const monitor = new MarketMonitor('your-api-key');
+const monitor = new MarketMonitor();
 await monitor.startMonitoring([
   '0x1234567890abcdef...',
   '0xabcdef1234567890...'
 ]);
-```
-
-## 🔧 OpenAPI Integration
-
-### Trading Operations
-```javascript
-// OpenAPI integration for trading
-class SonovaTrading {
-  constructor(apiKey) {
-    this.apiKey = apiKey;
-    this.openApiBase = 'https://api.sonova.one/open/v1';
-  }
-
-  // Get authenticated headers
-  getHeaders() {
-    return {
-      'X-API-KEY': this.apiKey,
-      'Content-Type': 'application/json'
-    };
-  }
-
-  // Query available orders
-  async queryOrders(networkId, options = {}) {
-    const {
-      contract,
-      tokenId = null,
-      maker = null,
-      onlySonova = false,
-      currency = null,
-      limit = 20,
-      offset = 0
-    } = options;
-
-    try {
-      const params = new URLSearchParams({
-        contract,
-        only_sonova: onlySonova.toString(),
-        limit: limit.toString(),
-        offset: offset.toString()
-      });
-
-      if (tokenId) params.append('token_id', tokenId);
-      if (maker) params.append('maker', maker);
-      if (currency) params.append('currency', currency);
-
-      const response = await fetch(
-        `${this.openApiBase}/${networkId}/orders?${params}`,
-        { headers: this.getHeaders() }
-      );
-
-      const result = await response.json();
-      return result.success ? { orders: result.data, total: result.total } : { orders: [], total: 0 };
-    } catch (error) {
-      console.error('Error querying orders:', error);
-      return { orders: [], total: 0 };
-    }
-  }
-
-  // Query offers
-  async queryOffers(networkId, contract, options = {}) {
-    const {
-      maker = null,
-      limit = 20,
-      offset = 0
-    } = options;
-
-    try {
-      const params = new URLSearchParams({
-        contract,
-        limit: limit.toString(),
-        offset: offset.toString()
-      });
-
-      if (maker) params.append('maker', maker);
-
-      const response = await fetch(
-        `${this.openApiBase}/${networkId}/offers?${params}`,
-        { headers: this.getHeaders() }
-      );
-
-      const result = await response.json();
-      return result.success ? { offers: result.data, total: result.total } : { offers: [], total: 0 };
-    } catch (error) {
-      console.error('Error querying offers:', error);
-      return { offers: [], total: 0 };
-    }
-  }
-
-  // Get market activity
-  async getMarketActivity(networkId, options = {}) {
-    const {
-      contract,
-      tokenId = null,
-      limit = 50,
-      offset = 0
-    } = options;
-
-    try {
-      const params = new URLSearchParams({
-        limit: limit.toString(),
-        offset: offset.toString()
-      });
-
-      if (contract) params.append('contract', contract);
-      if (tokenId) params.append('token_id', tokenId);
-
-      const response = await fetch(
-        `${this.openApiBase}/${networkId}/activity?${params}`,
-        { headers: this.getHeaders() }
-      );
-
-      const result = await response.json();
-      return result.success ? result.data : [];
-    } catch (error) {
-      console.error('Error fetching market activity:', error);
-      return [];
-    }
-  }
-
-  // Get detailed token information
-  async getTokenInfo(networkId, contract, tokenId) {
-    try {
-      const response = await fetch(
-        `${this.openApiBase}/${networkId}/tokens/${contract}/${tokenId}`,
-        { headers: this.getHeaders() }
-      );
-
-      const result = await response.json();
-      return result.success ? result.data : null;
-    } catch (error) {
-      console.error('Error fetching token info:', error);
-      return null;
-    }
-  }
-}
-
-// Usage
-const trading = new SonovaTrading('your-api-key');
-
-// Get all listings for a collection
-const { orders } = await trading.queryOrders(1868, {
-  contract: '0x1234567890abcdef...',
-  limit: 50
-});
-
-// Get collection offers
-const { offers } = await trading.queryOffers(1868, '0x1234567890abcdef...');
-
-// Get recent market activity
-const activity = await trading.getMarketActivity(1868, {
-  contract: '0x1234567890abcdef...',
-  limit: 100
-});
 ```
 
 ## 🚀 Launchpad Integration
@@ -712,9 +548,7 @@ const mintSignature = await monitor.signMint('launchpad-slug', 1);
 // Complete application integrating all Sonova features
 class SonovaApp {
   constructor(config = {}) {
-    this.apiKey = config.apiKey;
     this.apiBase = 'https://api.sonova.one/api';
-    this.openApiBase = 'https://api.sonova.one/open/v1';
     this.sessionToken = null;
     this.defaultNetwork = config.defaultNetwork || 1868;
   }
@@ -735,12 +569,10 @@ class SonovaApp {
   }
 
   // Get headers with authentication
-  getHeaders(useOpenAPI = false) {
+  getHeaders() {
     const headers = { 'Content-Type': 'application/json' };
     
-    if (useOpenAPI && this.apiKey) {
-      headers['X-API-KEY'] = this.apiKey;
-    } else if (this.sessionToken) {
+    if (this.sessionToken) {
       headers['Authorization'] = `Bearer ${this.sessionToken}`;
     }
     
@@ -797,26 +629,12 @@ class SonovaApp {
     return result.success ? result.data : null;
   }
 
-  // OpenAPI functions
-  async queryOpenAPIOrders(contract, options = {}) {
-    const params = new URLSearchParams({ contract, ...options });
-    
-    const response = await fetch(
-      `${this.openApiBase}/${this.defaultNetwork}/orders?${params}`,
-      { headers: this.getHeaders(true) }
-    );
-    
-    const result = await response.json();
-    return result.success ? result.data : [];
-  }
-
   // Dashboard function combining multiple data sources
   async getDashboard(walletAddress = null) {
     const dashboard = {
       timestamp: new Date().toISOString(),
       collections: [],
-      portfolio: null,
-      recentOrders: []
+      portfolio: null
     };
 
     try {
@@ -827,11 +645,6 @@ class SonovaApp {
       // Get user portfolio if wallet provided
       if (walletAddress) {
         dashboard.portfolio = await this.getWalletPortfolio(walletAddress);
-      }
-
-      // Get recent market orders (OpenAPI)
-      if (this.apiKey) {
-        dashboard.recentOrders = await this.queryOpenAPIOrders('', { limit: 20 });
       }
 
       console.log('Dashboard loaded successfully');
@@ -845,7 +658,6 @@ class SonovaApp {
 
 // Usage
 const app = new SonovaApp({
-  apiKey: 'your-api-key',
   defaultNetwork: 1868
 });
 
