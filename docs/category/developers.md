@@ -5,21 +5,27 @@ slug: /category/developers
 
 # Developer Documentation
 
-Technical documentation and resources for developers building on Sonova.
+Technical documentation and resources for developers integrating with Sonova marketplace.
 
 ## What You'll Find
 
-- **API Reference**: Complete REST and WebSocket API documentation
-- **SDK Libraries**: Official SDKs for popular programming languages
-- **Integration Guides**: Step-by-step integration tutorials
-- **Code Examples**: Ready-to-use code snippets and samples
+- **API Reference**: Complete REST API documentation with all endpoints
+- **Event Notifications**: Webhook integration for real-time updates
+- **Direct Integration**: HTTP-based integration guides for all programming languages
 
-## Quick Navigation
+## Available Documentation
 
-- [API Reference](../developers/api-reference) - Complete API documentation
-- [JavaScript SDK](../developers/js-sdk) - Official JavaScript/TypeScript SDK
-- [Python SDK](../developers/python-sdk) - Official Python SDK
-- [Integration Examples](../developers/examples) - Code examples and tutorials
-- [Webhooks](../developers/webhooks) - Real-time event notifications
+- [API Reference](../developers/api-reference) - Complete API documentation with v1 and v4 endpoints
+- [Webhooks](../developers/webhooks) - Real-time event notifications and webhook setup
 
-Build the future of NFTs with Sonova's developer tools! 💻 
+## Integration Approach
+
+Sonova currently provides direct REST API integration. Use standard HTTP clients in your preferred programming language:
+
+- **JavaScript/TypeScript**: Use `fetch()` or `axios`
+- **Python**: Use `requests` library
+- **PHP**: Use `curl` or `guzzle`
+- **Go**: Use `net/http` package
+- **Java**: Use `HttpClient` or `OkHttp`
+
+Build powerful NFT marketplace integrations with Sonova's comprehensive API! 🚀 
