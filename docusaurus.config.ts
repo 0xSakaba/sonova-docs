@@ -15,14 +15,14 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://sonova.one',
+  url: 'https://0xsakaba.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/sonova-docs/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'sonova', // Usually your GitHub org/user name.
+  organizationName: '0xSakaba', // Usually your GitHub org/user name.
   projectName: 'sonova-docs', // Usually your repo name.
 
   onBrokenLinks: 'throw',
